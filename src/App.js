@@ -2,12 +2,17 @@ import { Component } from 'react';
 import { nanoid } from 'nanoid';
 import PropTypes from 'prop-types';
 import './App.css';
+import ContactForm from './ContactForm';
 
 class Phonebook extends Component {
   state = {
-    contacts: [],
-    name: '',
-    number: '',
+    contacts: [
+      { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
+      { id: nanoid(), name: 'Hermione Kline', number: '443-89-12' },
+      { id: nanoid(), name: 'Eden Clements', number: '645-17-79' },
+      { id: nanoid(), name: 'Annie Copeland', number: '227-91-26' },
+    ],
+    filter: '',
   };
 
   addContact = e => {
@@ -17,48 +22,38 @@ class Phonebook extends Component {
         ...prevState.contacts,
         { id: nanoid(), name: this.state.name, number: this.state.number },
       ],
-      name: '',
-      number: '',
     }));
   };
 
-  onInput = e => {
-    const { name, value } = e.target;
-    this.setState({ [name]: value });
+  // onInput = e => {
+  //   const { name, value } = e.target;
+  //   this.setState({ [name]: value });
+  // };
+
+  contactFilter = e => {
+    const { filter, contacts } = this.state;
+    const normalizedFilter = filter.toLowerCase();
+    return contacts.filter(contact => contact.name.toLowerCase().includes(normalizedFilter));
+  };
+
+  changeFilter = e => {
+    this.setState({ filter: e.target.value });
   };
 
   render() {
-    const { name, contacts, number } = this.state;
+    const { contacts, number, filter } = this.state;
+    const contactFilter = this.contactFilter();
+
     return (
       <div>
         <>
           <h1>Телефонна книга</h1>
-          <form onSubmit={this.addContact}>
-            <h2>Ім'я</h2>
-            <input
-              type="text"
-              name="name"
-              value={name}
-              onChange={this.onInput}
-              pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-              title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-              required
-            />{' '}
-            <h2>Номер</h2>
-            <input
-              type="tel"
-              name="number"
-              value={number}
-              onChange={this.onInput}
-              pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-              title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-              required
-            />{' '}
-            <button type="submit">Додати контакт</button>
-          </form>
+          <ContactForm />
           <h2>Список контактів</h2>
+          <h3>Пошук контактів</h3>
+          <input type="text" name="filter" value={filter} onChange={this.changeFilter}></input>
           <ul>
-            {contacts.map(({ id, name, number }) => (
+            {contactFilter.map(({ id, name, number }) => (
               <li key={id}>
                 {name}: {number}
               </li>
