@@ -13,7 +13,7 @@ class ContactForm extends Component {
 
   submit = e => {
     e.preventDefault();
-    console.log(this.state);
+    this.props.addContact(this.state);
   };
 
   render() {

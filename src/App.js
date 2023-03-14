@@ -1,8 +1,10 @@
 import { Component } from 'react';
 import { nanoid } from 'nanoid';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import './App.css';
 import ContactForm from './ContactForm';
+import Filter from './Filter';
+import ContactList from './ContactList';
 
 class Phonebook extends Component {
   state = {
@@ -15,20 +17,17 @@ class Phonebook extends Component {
     filter: '',
   };
 
-  addContact = e => {
-    e.preventDefault();
+  addContact = state => {
+    console.log(state);
+    const nameArray = this.state.contacts.map(({ name }) => name);
+    if (nameArray.includes(state.name)) {
+      alert(`Контакт ${state.name} існує`);
+      return;
+    }
     this.setState(prevState => ({
-      contacts: [
-        ...prevState.contacts,
-        { id: nanoid(), name: this.state.name, number: this.state.number },
-      ],
+      contacts: [...prevState.contacts, { id: nanoid(), name: state.name, number: state.number }],
     }));
   };
-
-  // onInput = e => {
-  //   const { name, value } = e.target;
-  //   this.setState({ [name]: value });
-  // };
 
   contactFilter = e => {
     const { filter, contacts } = this.state;
@@ -40,34 +39,36 @@ class Phonebook extends Component {
     this.setState({ filter: e.target.value });
   };
 
+  deletContact = ({ target }) => {
+    console.log(target.name);
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(contact => contact.id !== target.name),
+    }));
+  };
+
   render() {
-    const { contacts, number, filter } = this.state;
+    const { filter } = this.state;
+    const { addContact, changeFilter, deletContact } = this;
     const contactFilter = this.contactFilter();
 
     return (
       <div>
         <>
           <h1>Телефонна книга</h1>
-          <ContactForm />
+          <ContactForm addContact={addContact} />
           <h2>Список контактів</h2>
           <h3>Пошук контактів</h3>
-          <input type="text" name="filter" value={filter} onChange={this.changeFilter}></input>
-          <ul>
-            {contactFilter.map(({ id, name, number }) => (
-              <li key={id}>
-                {name}: {number}
-              </li>
-            ))}
-          </ul>
+          <Filter filter={filter} changeFilter={changeFilter} />
+          <ContactList contactFilter={contactFilter} deletContact={deletContact} />
         </>
       </div>
     );
   }
 }
 
-Phonebook.propTypes = {
-  name: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-};
+// Phonebook.propTypes = {
+//   name: PropTypes.string.isRequired,
+//   id: PropTypes.string.isRequired,
+// };
 
 export default Phonebook;
