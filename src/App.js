@@ -9,13 +9,26 @@ import ContactList from './ContactList';
 class Phonebook extends Component {
   state = {
     contacts: [
-      { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
-      { id: nanoid(), name: 'Hermione Kline', number: '443-89-12' },
-      { id: nanoid(), name: 'Eden Clements', number: '645-17-79' },
-      { id: nanoid(), name: 'Annie Copeland', number: '227-91-26' },
+      // { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
+      // { id: nanoid(), name: 'Hermione Kline', number: '443-89-12' },
+      // { id: nanoid(), name: 'Eden Clements', number: '645-17-79' },
+      // { id: nanoid(), name: 'Annie Copeland', number: '227-91-26' },
     ],
     filter: '',
   };
+
+  componentDidMount() {
+    const contacts = localStorage.getItem('contacts');
+    console.log(contacts);
+    if (contacts) {
+      const contactsParsed = JSON.parse(contacts);
+      this.setState({ contacts: contactsParsed });
+    }
+  }
+
+  componentDidUpdate(prevState, prevProps) {
+    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+  }
 
   addContact = state => {
     console.log(state);
@@ -25,14 +38,19 @@ class Phonebook extends Component {
       return;
     }
     this.setState(prevState => ({
-      contacts: [...prevState.contacts, { id: nanoid(), name: state.name, number: state.number }],
+      contacts: [
+        ...prevState.contacts,
+        { id: nanoid(), name: state.name, number: state.number },
+      ],
     }));
   };
 
   contactFilter = e => {
     const { filter, contacts } = this.state;
     const normalizedFilter = filter.toLowerCase();
-    return contacts.filter(contact => contact.name.toLowerCase().includes(normalizedFilter));
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter)
+    );
   };
 
   changeFilter = e => {
@@ -42,7 +60,9 @@ class Phonebook extends Component {
   deletContact = ({ target }) => {
     console.log(target.name);
     this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== target.name),
+      contacts: prevState.contacts.filter(
+        contact => contact.id !== target.name
+      ),
     }));
   };
 
@@ -59,7 +79,10 @@ class Phonebook extends Component {
           <h2>Список контактів</h2>
           <h3>Пошук контактів</h3>
           <Filter filter={filter} changeFilter={changeFilter} />
-          <ContactList contactFilter={contactFilter} deletContact={deletContact} />
+          <ContactList
+            contactFilter={contactFilter}
+            deletContact={deletContact}
+          />
         </>
       </div>
     );
